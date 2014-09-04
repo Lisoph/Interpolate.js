@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<title>Interpolate.js Test</title>
+
+		<style type="text/css">
+		.center {
+			margin-left: auto;
+			margin-right: auto;
+			width: 75%;
+			text-align: center;
+		}
+
+		#footer {
+			margin-top: 200px;
+		}
+
+		#testDummy {
+			width: 256;
+			height: 256;
+			background-color: orange;
+			position: relative;
+		}
+
+		.testDummyBegin {
+			top: 0px;
+		}
+
+		.testDummyEnd {
+			top: 100px;
+		}
+
+		</style>
+	</head>
+
+	<body>
+
+	<div class="center">
+		<h2>Interpolate.js Test</h2>
+
+		<div id="testDummy"></div>
+
+		<div id="footer">
+			<input id="doButton" type="button" value="Do" />
+			<input id="timeInput" type="text" value="1000" />
+		</div>
+	</div>
+
+	<script type="text/javascript" src="./jquery-1.11.0.min.js"></script>
+	<script type="text/javascript" src="../build/interpolate.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$("#doButton").on("click", function() {
+			Interpol.Do({
+				object: $("#testDummy")[0],
+				start: ".testDummyBegin",
+				end: ".testDummyEnd",
+				time: parseInt($("#timeInput").val())
+			});
+		});
+	});
+	</script>
+	</body>
+</html>
