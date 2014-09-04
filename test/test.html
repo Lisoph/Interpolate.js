@@ -23,10 +23,12 @@
 
 		.testDummyBegin {
 			top: 0px;
+			width: 256px;
 		}
 
 		.testDummyEnd {
-			top: 100px;
+			width: 300px;
+			top: 200px;
 		}
 
 		</style>
@@ -54,7 +56,9 @@
 				object: $("#testDummy")[0],
 				start: ".testDummyBegin",
 				end: ".testDummyEnd",
-				time: parseInt($("#timeInput").val())
+				time: parseInt($("#timeInput").val()),
+
+				method: Interpol.Interpols.Cos
 			});
 		});
 	});

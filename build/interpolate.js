@@ -75,6 +75,32 @@ Interpol.Interpols.Lerp = function(x0, x1, t) {
     return (1 - t) * x0 + t * x1;
 };
 
+Interpol.Interpols.Sin = function(x0, x1, t) {
+    t = Math.sin(Math.PI / 2 * t);
+    return Interpol.Interpols.Lerp(x0, x1, t);
+};
+
+Interpol.Interpols.Cos = function(x0, x1, t) {
+    t = Math.cos(Math.PI / 2 * t);
+    return Interpol.Interpols.Lerp(x0, x1, t);
+};
+
+Interpol.Interpols.Smooth = function(x0, x1, t) {
+    t = t * t * (3 - 2 * t);
+    return Interpol.Interpols.Lerp(x0, x1, t);
+};
+
+Interpol.Interpols.Square = function(x0, x1, t) {
+    t = t * t;
+    return Interpol.Interpols.Lerp(x0, x1, t);
+};
+
+Interpol.Interpols.InvSquare = function(x0, x1, t) {
+    var onemt = 1 - t;
+    t = 1 - onemt * onemt;
+    return Interpol.Interpols.Lerp(x0, x1, t);
+};
+
 Interpol.AnimController = function(args, beginAttribs, endAttribs) {
     this.args = args;
     this.beginAttribs = beginAttribs;
@@ -132,7 +158,6 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
     var attribs = this.numBeginAttribs > this.numEndAttribs ? this.beginAttribs : this.endAttribs;
     var otherAttribs = this.numBeginAttribs > this.numEndAttribs ? this.endAttribs : this.beginAttribs;
     for (var attribName in attribs) {
-        console.log("Doing attribute " + attribName);
         if (otherAttribs[attribName] !== undefined) {
             if (Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]) !== Interpol.Css.GetAttribUnitStr(this.endAttribs[attribName])) {
                 console.log("Error, begin and end attributes have different units");
@@ -147,6 +172,5 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 };
 
 Interpol.AnimController.prototype.OnFinish = function() {
-    var $obj = this.args.object;
-    console.log("k done");
+    this.ApplyCss(1);
 };

@@ -72,7 +72,7 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 	var otherAttribs = (this.numBeginAttribs > this.numEndAttribs ? this.endAttribs : this.beginAttribs);
 
 	for(var attribName in attribs) {
-		console.log("Doing attribute " + attribName);
+		// console.log("Doing attribute " + attribName);
 
 		/* Check if otherAttribs has that attribute too */
 		if(otherAttribs[attribName] !== undefined) {
@@ -93,18 +93,8 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 }
 
 Interpol.AnimController.prototype.OnFinish = function() {
-	var $obj = this.args.object;
-
-	/* Remove all the css properties */
-	/*for(var beginAttrName in this.beginAttribs) {
-		$obj.css(beginAttrName, "");
-	}
-
-	for(var endAttrName in this.endAttribs) {
-		$obj.css(endAttrName, "");
-	}*/
-
-	console.log("k done");
+	/* This guarantees a perfect end state */
+	this.ApplyCss(1.0);
 }
 
 
