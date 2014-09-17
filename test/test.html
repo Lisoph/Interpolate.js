@@ -24,11 +24,13 @@
 		.testDummyBegin {
 			top: 0px;
 			width: 256px;
+			left: 0px;
 		}
 
 		.testDummyEnd {
-			width: 300px;
+			width: 400px;
 			top: 200px;
+			left: 500px;
 		}
 
 		</style>
@@ -51,6 +53,8 @@
 	<script type="text/javascript" src="../build/interpolate.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
+		var timesCalled = 0;
+
 		$("#doButton").on("click", function() {
 			Interpol.Do({
 				object: $("#testDummy")[0],
@@ -58,7 +62,12 @@
 				end: ".testDummyEnd",
 				time: parseInt($("#timeInput").val()),
 
-				method: Interpol.Interpols.Cos
+				method: Interpol.Methods.Sin,
+
+				callbacks: {
+					onFinish: function() { console.log("Update ran " + timesCalled + " times"); timesCalled = 0; },
+					onProgress: function(t) { ++timesCalled; }
+				}
 			});
 		});
 	});

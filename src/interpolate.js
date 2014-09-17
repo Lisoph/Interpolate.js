@@ -8,9 +8,10 @@ Interpol.Do = function(args) {
 	if(!args.end) return false;
 
 	/* Default args */
-	if(!args.method) args.method = Interpol.Interpols.Lerp;
+	if(!args.method) args.method = Interpol.Methods.Lerp;
 	if(!args.animController) args.animController = Interpol.AnimController;
 	if(!args.time) args.time = 1000;
+	if(!args.callbacks) args.callbacks = {};
 
 	/* Gather begin attributes */
 	var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);
@@ -37,7 +38,7 @@ var % = Interpol;
 	object: $("#myCoolObject"),
 	start: ".red",
 	end: ".blue",
-	method: %.Interpols.Lerp, // optional
+	method: %.Methods.Lerp, // optional
 	time: 1000 // 1 second, optional
 });
 

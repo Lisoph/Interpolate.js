@@ -63,6 +63,10 @@ Interpol.AnimController.prototype.DoFrame = function(timestamp) {
 
 	var t = animTimePassed / this.args.time;
 	this.ApplyCss(t);
+
+	if(this.args.callbacks.onProgress)
+		this.args.callbacks.onProgress(t);
+
 	this.RequestAnimFrame();
 }
 
@@ -95,17 +99,7 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 Interpol.AnimController.prototype.OnFinish = function() {
 	/* This guarantees a perfect end state */
 	this.ApplyCss(1.0);
+
+	if(this.args.callbacks.onFinish)
+		this.args.callbacks.onFinish();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

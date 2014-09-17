@@ -5,9 +5,10 @@ Interpol.Do = function(args) {
     if (!args.object) return false;
     if (!args.start) return false;
     if (!args.end) return false;
-    if (!args.method) args.method = Interpol.Interpols.Lerp;
+    if (!args.method) args.method = Interpol.Methods.Lerp;
     if (!args.animController) args.animController = Interpol.AnimController;
     if (!args.time) args.time = 1e3;
+    if (!args.callbacks) args.callbacks = {};
     var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);
     var endAttribs = Interpol.Css.GetAllCssAttribs(args.end);
     var animController = new args.animController(args, beginAttribs, endAttribs);
@@ -69,36 +70,31 @@ Interpol.Css.IsAttribNumber = function(attribute) {
     return !isNaN(parseFloat(attribute));
 };
 
-Interpol.Interpols = {};
+Interpol.Methods = {};
 
-Interpol.Interpols.Lerp = function(x0, x1, t) {
+Interpol.Methods.Lerp = function(x0, x1, t) {
     return (1 - t) * x0 + t * x1;
 };
 
-Interpol.Interpols.Sin = function(x0, x1, t) {
+Interpol.Methods.Sin = function(x0, x1, t) {
     t = Math.sin(Math.PI / 2 * t);
-    return Interpol.Interpols.Lerp(x0, x1, t);
+    return Interpol.Methods.Lerp(x0, x1, t);
 };
 
-Interpol.Interpols.Cos = function(x0, x1, t) {
-    t = Math.cos(Math.PI / 2 * t);
-    return Interpol.Interpols.Lerp(x0, x1, t);
-};
-
-Interpol.Interpols.Smooth = function(x0, x1, t) {
+Interpol.Methods.Smooth = function(x0, x1, t) {
     t = t * t * (3 - 2 * t);
-    return Interpol.Interpols.Lerp(x0, x1, t);
+    return Interpol.Methods.Lerp(x0, x1, t);
 };
 
-Interpol.Interpols.Square = function(x0, x1, t) {
+Interpol.Methods.Square = function(x0, x1, t) {
     t = t * t;
-    return Interpol.Interpols.Lerp(x0, x1, t);
+    return Interpol.Methods.Lerp(x0, x1, t);
 };
 
-Interpol.Interpols.InvSquare = function(x0, x1, t) {
-    var onemt = 1 - t;
-    t = 1 - onemt * onemt;
-    return Interpol.Interpols.Lerp(x0, x1, t);
+Interpol.Methods.InvSquare = function(x0, x1, t) {
+    var invt = 1 - t;
+    t = 1 - invt * invt;
+    return Interpol.Methods.Lerp(x0, x1, t);
 };
 
 Interpol.AnimController = function(args, beginAttribs, endAttribs) {
@@ -151,6 +147,7 @@ Interpol.AnimController.prototype.DoFrame = function(timestamp) {
     }
     var t = animTimePassed / this.args.time;
     this.ApplyCss(t);
+    if (this.args.callbacks.onProgress) this.args.callbacks.onProgress(t);
     this.RequestAnimFrame();
 };
 
@@ -173,4 +170,11 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 
 Interpol.AnimController.prototype.OnFinish = function() {
     this.ApplyCss(1);
+    if (this.args.callbacks.onFinish) this.args.callbacks.onFinish();
+};
+
+Interpol.StrUtils = {};
+
+String.prototype.Contains = function(str) {
+    return this.indexOf(str) !== -1;
 };
