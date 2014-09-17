@@ -1,5 +1,5 @@
 SRC_FILES_DIR := ./src/
-SRC_FILE_NAMES := interpolate.js getcss.js methods.js animcontroller.js strutils.js
+SRC_FILE_NAMES := interpolate.js getcss.js methods.js animcontroller.js strutils.js background_color_attrib_controller.js
 OUTPUT := ./build/interpolate.js
 UGLIFY_OUTPUT := false
 

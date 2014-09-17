@@ -109,7 +109,8 @@ Interpol.AnimController = function(args, beginAttribs, endAttribs) {
 };
 
 Interpol.AnimController.prototype.HasAttribController = function(attribName) {
-    for (var registeredAttribController in this.registeredAttribControllers) {
+    for (var index in this.registeredAttribControllers) {
+        var registeredAttribController = this.registeredAttribControllers[index];
         if (registeredAttribController.attribName === attribName) {
             return true;
         }
@@ -118,7 +119,8 @@ Interpol.AnimController.prototype.HasAttribController = function(attribName) {
 };
 
 Interpol.AnimController.prototype.GetAttribController = function(attribName) {
-    for (var registeredAttribController in this.registeredAttribControllers) {
+    for (var index in this.registeredAttribControllers) {
+        var registeredAttribController = this.registeredAttribControllers[index];
         if (registeredAttribController.attribName === attribName) {
             return registeredAttribController.controller;
         }
@@ -145,6 +147,7 @@ Interpol.AnimController.prototype.RequestAnimFrame = function() {
 };
 
 Interpol.AnimController.prototype.Run = function() {
+    this.RegisterAttribController("background-color", new Interpol.AttribControllers.BackgroundColorAttribController(this.args.object));
     this.Setup();
     this.animId = this.RequestAnimFrame();
 };
@@ -152,7 +155,9 @@ Interpol.AnimController.prototype.Run = function() {
 Interpol.AnimController.prototype.Setup = function() {
     this.numBeginAttribs = 0;
     for (var attribName in this.beginAttribs) {
-        if (this.HasAttribController(attribName)) continue;
+        if (this.HasAttribController(attribName)) {
+            continue;
+        }
         var attrib = this.beginAttribs[attribName];
         if (!Interpol.Css.IsAttribNumber(attrib)) {
             delete this.beginAttribs[attribName];
@@ -161,7 +166,9 @@ Interpol.AnimController.prototype.Setup = function() {
     }
     this.numEndAttribs = 0;
     for (var attribName in this.endAttribs) {
-        if (this.HasAttribController(attribName)) continue;
+        if (this.HasAttribController(attribName)) {
+            continue;
+        }
         var attrib = this.endAttribs[attribName];
         if (!Interpol.Css.IsAttribNumber(attrib)) {
             delete this.endAttribs[attribName];
@@ -213,4 +220,14 @@ Interpol.StrUtils = {};
 
 String.prototype.Contains = function(str) {
     return this.indexOf(str) !== -1;
+};
+
+Interpol.AttribControllers = {};
+
+Interpol.AttribControllers.BackgroundColorAttribController = function(object) {
+    this.object = object;
+};
+
+Interpol.AttribControllers.BackgroundColorAttribController.prototype.Do = function(beginProperty, endProperty) {
+    this.object.style.backgroundColor = "orange";
 };

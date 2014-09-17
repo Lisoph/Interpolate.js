@@ -14,7 +14,9 @@ Interpol.AnimController = function(args, beginAttribs, endAttribs) {
 }
 
 Interpol.AnimController.prototype.HasAttribController = function(attribName) {
-	for(var registeredAttribController in this.registeredAttribControllers) {
+	for(var index in this.registeredAttribControllers) {
+		var registeredAttribController = this.registeredAttribControllers[index];
+
 		if(registeredAttribController.attribName === attribName) {
 			return true;
 		}
@@ -24,7 +26,9 @@ Interpol.AnimController.prototype.HasAttribController = function(attribName) {
 }
 
 Interpol.AnimController.prototype.GetAttribController = function(attribName) {
-	for(var registeredAttribController in this.registeredAttribControllers) {
+	for(var index in this.registeredAttribControllers) {
+		var registeredAttribController = this.registeredAttribControllers[index];
+
 		if(registeredAttribController.attribName === attribName) {
 			return registeredAttribController.controller;
 		}
@@ -48,6 +52,9 @@ Interpol.AnimController.prototype.RequestAnimFrame = function() {
 }
 
 Interpol.AnimController.prototype.Run = function() {
+	/* Register default attribute controllers */
+	this.RegisterAttribController("background-color", new Interpol.AttribControllers.BackgroundColorAttribController(this.args.object));
+
 	this.Setup();
 	this.animId = this.RequestAnimFrame();
 }
@@ -59,8 +66,9 @@ Interpol.AnimController.prototype.Setup = function() {
 	this.numBeginAttribs = 0;
 	for(var attribName in this.beginAttribs) {
 		/* Ignore attribute with a registered attribute controller */
-		if(this.HasAttribController(attribName))
+		if(this.HasAttribController(attribName)) {
 			continue;
+		}
 
 		var attrib = this.beginAttribs[attribName];
 
@@ -74,8 +82,9 @@ Interpol.AnimController.prototype.Setup = function() {
 	this.numEndAttribs = 0;
 	for(var attribName in this.endAttribs) {
 		/* Ignore attribute with a registered attribute controller */
-		if(this.HasAttribController(attribName))
+		if(this.HasAttribController(attribName)) {
 			continue;
+		}
 
 		var attrib = this.endAttribs[attribName];
 
