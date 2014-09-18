@@ -17,7 +17,8 @@
 		#testDummy {
 			width: 256;
 			height: 256;
-			background-color: orange;
+			background-color: rgba(90, 27, 40, 1.0);
+			color: #8F523B;
 			position: relative;
 		}
 
@@ -26,18 +27,18 @@
 			width: 256px;
 			left: 0px;
 
-			background-color: rgba(255, 165, 0, 1.0);
-			color: #00a;
+			background-color: rgba(90, 27, 40, 1.0);
+			color: #8F523B;
 		}
 
 		.testDummyEnd {
-			width: 400px;
+			width: 500px;
 			top: 200px;
 			left: 500px;
 
 			/*background-color: rgba(255, 165, 200, 0.3);*/
-			background-color: #7D26CD;
-			color: #aa0;
+			background-color: #F4D79D;
+			color: #D6C1B0;
 		}
 
 		</style>
@@ -54,12 +55,13 @@
 			<input id="doButton" type="button" value="Do" />
 			<input id="timeInput" type="text" value="5000" />
 			<select id="methodInput">
-				<option value="linear">Linear</option>
 				<option value="sin">Sin</option>
 				<option value="smooth">Smooth</option>
 				<option value="square">Square</option>
 				<option value="invsquare">Inverse square</option>
+				<option value="linear">Linear</option>
 			</select>
+			<label><input id="reverseInput" type="checkbox">Reverse</label>
 		</div>
 	</div>
 
@@ -86,6 +88,8 @@
 								 val === "invsquare" ? Interpol.Methods.InvSquare :
 								 undefined;
 				})(),
+
+				reverse: $("#reverseInput:checked").prop("checked"),
 
 				callbacks: {
 					onFinish: function() { console.log("Update ran " + timesCalled + " times"); timesCalled = 0; },

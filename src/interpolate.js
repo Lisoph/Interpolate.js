@@ -2,16 +2,24 @@ var Interpol = {};
 
 Interpol.Do = function(args) {
 	/* Check required args */
-	if(!args) return false;
-	if(!args.object) return false;
-	if(!args.start) return false;
-	if(!args.end) return false;
+	if(typeof args == "undefined") return false;
+	if(typeof args.object == "undefined") return false;
+	if(typeof args.start == "undefined") return false;
+	if(typeof args.end == "undefined") return false;
 
 	/* Default args */
-	if(!args.method) args.method = Interpol.Methods.Lerp;
-	if(!args.animController) args.animController = Interpol.AnimController;
-	if(!args.time) args.time = 1000;
-	if(!args.callbacks) args.callbacks = {};
+	if(typeof args.method == "undefined") args.method = Interpol.Methods.Lerp;
+	if(typeof args.animController == "undefined") args.animController = Interpol.AnimController;
+	if(typeof args.time == "undefined") args.time = 1000;
+	if(typeof args.callbacks == "undefined") args.callbacks = {};
+	if(typeof args.reverse == "undefined") args.reverse = false;
+
+	/* If reverse is set to true, we simply switch begin and end */
+	if(args.reverse) {
+		var tmp = args.start;
+		args.start = args.end;
+		args.end = tmp;
+	}
 
 	/* Gather begin attributes */
 	var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);

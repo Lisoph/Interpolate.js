@@ -9,6 +9,12 @@ Interpol.Do = function(args) {
     if (!args.animController) args.animController = Interpol.AnimController;
     if (!args.time) args.time = 1e3;
     if (!args.callbacks) args.callbacks = {};
+    if (!args.reverse) args.reverse = false;
+    if (args.reverse) {
+        var tmp = args.start;
+        args.start = args.end;
+        args.end = tmp;
+    }
     var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);
     var endAttribs = Interpol.Css.GetAllCssAttribs(args.end);
     var animController = new args.animController(args, beginAttribs, endAttribs);
