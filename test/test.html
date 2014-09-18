@@ -27,6 +27,7 @@
 			left: 0px;
 
 			background-color: rgba(255, 165, 0, 1.0);
+			color: #00a;
 		}
 
 		.testDummyEnd {
@@ -34,7 +35,9 @@
 			top: 200px;
 			left: 500px;
 
-			background-color: rgba(100, 0, 0, 1.0);
+			/*background-color: rgba(255, 165, 200, 0.3);*/
+			background-color: #7D26CD;
+			color: #aa0;
 		}
 
 		</style>
@@ -45,11 +48,18 @@
 	<div class="center">
 		<h2>Interpolate.js Test</h2>
 
-		<div id="testDummy"></div>
+		<div id="testDummy">Hi</div>
 
 		<div id="footer">
 			<input id="doButton" type="button" value="Do" />
-			<input id="timeInput" type="text" value="1000" />
+			<input id="timeInput" type="text" value="5000" />
+			<select id="methodInput">
+				<option value="linear">Linear</option>
+				<option value="sin">Sin</option>
+				<option value="smooth">Smooth</option>
+				<option value="square">Square</option>
+				<option value="invsquare">Inverse square</option>
+			</select>
 		</div>
 	</div>
 
@@ -66,7 +76,16 @@
 				end: ".testDummyEnd",
 				time: parseInt($("#timeInput").val()),
 
-				method: Interpol.Methods.Sin,
+				//method: Interpol.Methods.Sin,
+				method: (function() {
+					var val = $("#methodInput").val();
+					return val === "linear" ? Interpol.Methods.Lerp :
+								 val === "sin" ? Interpol.Methods.Sin :
+								 val === "smooth" ? Interpol.Methods.Smooth :
+								 val === "square" ? Interpol.Methods.Square :
+								 val === "invsquare" ? Interpol.Methods.InvSquare :
+								 undefined;
+				})(),
 
 				callbacks: {
 					onFinish: function() { console.log("Update ran " + timesCalled + " times"); timesCalled = 0; },

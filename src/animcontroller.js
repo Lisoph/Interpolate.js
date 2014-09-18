@@ -1,3 +1,12 @@
+window.requestAnimationFrame = (function() {
+	return window.requestAnimationFrame ||
+	window.webkitRequestAnimationFrame  ||
+	window.mozRequestAnimationFrame     ||
+	function(callback) {
+		window.setTimeout(callback, 1000 / 60);
+	};
+})();
+
 /* AnimController class */
 Interpol.AnimController = function(args, beginAttribs, endAttribs) {
 	this.args = args;
@@ -48,12 +57,14 @@ Interpol.AnimController.prototype.RegisterAttribController = function(attribName
 
 Interpol.AnimController.prototype.RequestAnimFrame = function() {
 	var self = this;
-	return requestAnimationFrame(function(ts) { self.DoFrame(ts); });
+
+	return window.requestAnimationFrame(function(ts) { self.DoFrame(ts); });
 }
 
 Interpol.AnimController.prototype.Run = function() {
 	/* Register default attribute controllers */
-	this.RegisterAttribController("background-color", new Interpol.AttribControllers.BackgroundColorAttribController(this.args.object));
+	this.RegisterAttribController("background-color", new Interpol.AttribControllers.ColorAttribController(this.args, "background-color"));
+	this.RegisterAttribController("color", new Interpol.AttribControllers.ColorAttribController(this.args, "color"));
 
 	this.Setup();
 	this.animId = this.RequestAnimFrame();
@@ -133,7 +144,7 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
 			/* Check if there is a registered attribute controller for this attribute */
 			if(self.HasAttribController(attribName)) {
 				var controller = self.GetAttribController(attribName);
-				controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName]);
+				controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName], t);
 			}
 
 			/* Ok, so no attribute controller was found. Now we're guessing that the attribute is a number. */

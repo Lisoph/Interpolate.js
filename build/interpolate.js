@@ -97,6 +97,12 @@ Interpol.Methods.InvSquare = function(x0, x1, t) {
     return Interpol.Methods.Lerp(x0, x1, t);
 };
 
+window.requestAnimationFrame = function() {
+    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) {
+        window.setTimeout(callback, 1e3 / 60);
+    };
+}();
+
 Interpol.AnimController = function(args, beginAttribs, endAttribs) {
     this.args = args;
     this.beginAttribs = beginAttribs;
@@ -141,13 +147,14 @@ Interpol.AnimController.prototype.RegisterAttribController = function(attribName
 
 Interpol.AnimController.prototype.RequestAnimFrame = function() {
     var self = this;
-    return requestAnimationFrame(function(ts) {
+    return window.requestAnimationFrame(function(ts) {
         self.DoFrame(ts);
     });
 };
 
 Interpol.AnimController.prototype.Run = function() {
-    this.RegisterAttribController("background-color", new Interpol.AttribControllers.BackgroundColorAttribController(this.args.object));
+    this.RegisterAttribController("background-color", new Interpol.AttribControllers.ColorAttribController(this.args, "background-color"));
+    this.RegisterAttribController("color", new Interpol.AttribControllers.ColorAttribController(this.args, "color"));
     this.Setup();
     this.animId = this.RequestAnimFrame();
 };
@@ -198,7 +205,7 @@ Interpol.AnimController.prototype.ApplyCss = function(t) {
         if (otherAttribs[attribName] !== undefined) {
             if (self.HasAttribController(attribName)) {
                 var controller = self.GetAttribController(attribName);
-                controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName]);
+                controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName], t);
             } else if (Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]) === Interpol.Css.GetAttribUnitStr(this.endAttribs[attribName])) {
                 var beginAttribVal = parseFloat(this.beginAttribs[attribName]);
                 var endAttribVal = parseFloat(this.endAttribs[attribName]);
@@ -222,12 +229,142 @@ String.prototype.Contains = function(str) {
     return this.indexOf(str) !== -1;
 };
 
-Interpol.AttribControllers = {};
-
-Interpol.AttribControllers.BackgroundColorAttribController = function(object) {
-    this.object = object;
+String.prototype.IsNumeric = function() {
+    return !isNaN(this);
 };
 
-Interpol.AttribControllers.BackgroundColorAttribController.prototype.Do = function(beginProperty, endProperty) {
-    this.object.style.backgroundColor = "orange";
+Interpol.StrUtils.BuildRgbaStr = function(r, g, b, a) {
+    return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
+};
+
+Interpol.StrUtils.IsHex = function(str) {
+    str = str.trim();
+    return str.charAt(0) === "#" && (str.length - 1) % 3 == 0;
+};
+
+Interpol.StrUtils.HexToRgba = function(str, alpha) {
+    str.trim();
+    if (!this.IsHex(str)) return undefined;
+    str = str.substr(1);
+    var val = parseInt(str, 16);
+    var r = val >> 24;
+    var g = val >> 16 & 255;
+    var b = val >> 8 & 255;
+    if (typeof alpha == "undefined") alpha = 1;
+    return this.BuildRgbaStr(r, g, b, alpha);
+};
+
+Interpol.StrUtils.IsRgb = function(str) {
+    str.trim();
+    if (str.substr(0, 4) !== "rgb(") return false;
+    return true;
+};
+
+Interpol.StrUtils.RgbToRgba = function(str, alpha) {
+    if (!this.IsRgb(str)) return undefined;
+    str = str.replace(" ", "");
+    var strIndex = 4;
+    var numStr = "";
+    var digit;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var r = parseInt(numStr);
+    if (isNaN(r)) return undefined;
+    numStr = "";
+    ++strIndex;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var g = parseInt(numStr);
+    if (isNaN(g)) return undefined;
+    numStr = "";
+    ++strIndex;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var b = parseInt(numStr);
+    if (isNaN(b)) return undefined;
+    numStr = "";
+    if (typeof alpha == "undefined") alpha = 1;
+    return this.BuildRgbaStr(r, g, b, alpha);
+};
+
+Interpol.StrUtils.ToRgba = function(str, alpha) {
+    return this.IsRgba(str) ? str : this.HexToRgba(str, alpha) || this.RgbToRgba(str, alpha) || undefined;
+};
+
+Interpol.StrUtils.IsRgba = function(str) {
+    str.trim();
+    if (str.substr(0, 5) !== "rgba(") return false;
+    return true;
+};
+
+Interpol.StrUtils.RgbaToColor = function(str) {
+    str = str.replace(" ", "");
+    var strIndex = 5;
+    var numStr = "";
+    var digit;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var r = parseInt(numStr);
+    if (isNaN(r)) return undefined;
+    numStr = "";
+    ++strIndex;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var g = parseInt(numStr);
+    if (isNaN(g)) return undefined;
+    numStr = "";
+    ++strIndex;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric()) {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var b = parseInt(numStr);
+    if (isNaN(b)) return undefined;
+    numStr = "";
+    ++strIndex;
+    while ((digit = str.substr(strIndex, 1)).IsNumeric() || digit === ".") {
+        numStr += digit.toString();
+        ++strIndex;
+    }
+    var a = parseFloat(numStr);
+    if (isNaN(a)) return undefined;
+    numStr = "";
+    return {
+        r: r,
+        g: g,
+        b: b,
+        a: a
+    };
+};
+
+Interpol.AttribControllers = {};
+
+Interpol.AttribControllers.ColorAttribController = function(args, attribName) {
+    this.args = args;
+    this.attribName = attribName;
+};
+
+Interpol.AttribControllers.ColorAttribController.prototype.Do = function(beginAttrib, endAttrib, t) {
+    var self = this;
+    beginAttrib = Interpol.StrUtils.ToRgba(beginAttrib);
+    endAttrib = Interpol.StrUtils.ToRgba(endAttrib);
+    var beginColor = Interpol.StrUtils.RgbaToColor(beginAttrib);
+    var endColor = Interpol.StrUtils.RgbaToColor(endAttrib);
+    var color = {
+        r: parseInt(self.args.method(beginColor.r, endColor.r, t)),
+        g: parseInt(self.args.method(beginColor.g, endColor.g, t)),
+        b: parseInt(self.args.method(beginColor.b, endColor.b, t)),
+        a: self.args.method(beginColor.a, endColor.a, t)
+    };
+    this.args.object.style[this.attribName] = Interpol.StrUtils.BuildRgbaStr(color.r, color.g, color.b, color.a);
 };
