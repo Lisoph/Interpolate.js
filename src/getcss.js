@@ -1,9 +1,9 @@
 Interpol.Css = {};
 
 /*
- * GetCssAttrib - Returns the $attribute of the css $selector
+ * GetCssProperty - Returns the $property of the css $selector
 */
-Interpol.Css.GetCssAttrib = function(selector, attribute) {
+Interpol.Css.GetCssProperty = function(selector, property) {
 	/* Loop trough all style sheets */
 	for(var i = 0; i < document.styleSheets.length; ++i) {
 		var styleSheet = document.styleSheets[i];
@@ -12,19 +12,18 @@ Interpol.Css.GetCssAttrib = function(selector, attribute) {
 		for(var j = 0; j < styleSheet.rules.length; ++j) {
 			var rule = styleSheet.rules[j];
 
-			/* Return the attribute _attribute_, if the rule with the selector _selector_ was found */
+			/* Return the property $property, if the rule with the selector $selector was found */
 			if(selector.toLowerCase() === rule.selectorText.toLowerCase()) {
-				//return rule.style[attribute.toLowerCase()];
-				return rule.style.getPropertyValue(attribute.toLowerCase());
+				return rule.style.getPropertyValue(property.toLowerCase());
 			}
 		}
 	}
 
-	return; // This returns undefined
-}
+	return undefined;
+};
 
-Interpol.Css.GetAllCssAttribs = function(selector) {
-	var attribs = {};
+Interpol.Css.GetAllCssProperties = function(selector) {
+	var properties = {};
 
 	/* Loop trough all style sheets */
 	for(var i = 0; i < document.styleSheets.length; ++i) {
@@ -37,40 +36,39 @@ Interpol.Css.GetAllCssAttribs = function(selector) {
 			if(selector.toLowerCase() === rule.selectorText.toLowerCase()) {
 				var style = rule.style;
 
-				/* Loop trough all attributes */
+				/* Loop trough all properties */
 				for(var a = 0; a < style.length; ++a) {
-					var attribName = style.item(a);
-					// attribs[attribName] = style.getAttribValue(attribName);
-					attribs[attribName] = style.getPropertyValue(attribName.toLowerCase());
+					var propertyName = style.item(a);
+					properties[propertyName] = style.getPropertyValue(propertyName.toLowerCase());
 				}
 			}
 		}
 	}
 
-	return attribs;
-}
+	return properties;
+};
 
-Interpol.Css.IsAttribUnitPercent = function(attribute) {
-	return attribute.charAt(attribute.length - 1) === '%';
-}
+Interpol.Css.IsPropertyUnitPercent = function(property) {
+	return property.charAt(property.length - 1) === '%';
+};
 
-Interpol.Css.IsAttribUnitPixel = function(attribute) {
-	var subStr = attribute.substring(attribute.length - 2, attribute.length);
+Interpol.Css.IsPropertyUnitPixel = function(property) {
+	var subStr = property.substring(property.length - 2, property.length);
 	if(subStr) {
 		return subStr.toLowerCase() === "px";
 	}
 
 	return false;
-}
+};
 
-Interpol.Css.GetAttribUnitStr = function(attribute) {
-	if(Interpol.Css.IsAttribUnitPercent(attribute))
+Interpol.Css.GetPropertyUnitStr = function(property) {
+	if(Interpol.Css.IsPropertyUnitPercent(property))
 		return "%";
-	else if(Interpol.Css.IsAttribUnitPixel(attribute))
+	else if(Interpol.Css.IsPropertyUnitPixel(property))
 		return "px";
 	return "";
-}
+};
 
-Interpol.Css.IsAttribNumber = function(attribute) {
-	return !isNaN(/*parseInt*/parseFloat(attribute));
-}
+Interpol.Css.IsPropertyNumber = function(property) {
+	return !isNaN(parseFloat(property));
+};

@@ -2,20 +2,20 @@ Interpol.StrUtils = {};
 
 String.prototype.Contains = function(str) {
   return this.indexOf(str) !== -1;
-}
+};
 
 String.prototype.IsNumeric = function() {
   return !isNaN(this);
-}
+};
 
 Interpol.StrUtils.BuildRgbaStr = function(r, g, b, a) {
   return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
-}
+};
 
 Interpol.StrUtils.IsHex = function(str) {
   str = str.trim();
-  return str.charAt(0) === '#' && ((str.length - 1) % 3 == 0);
-}
+  return str.charAt(0) === '#' && ((str.length - 1) % 3 === 0);
+};
 
 Interpol.StrUtils.HexToRgba = function(str, alpha) {
   str.trim();
@@ -30,7 +30,7 @@ Interpol.StrUtils.HexToRgba = function(str, alpha) {
   if(typeof alpha == "undefined") alpha = 1.0;
 
   return this.BuildRgbaStr(r, g, b, alpha);
-}
+};
 
 Interpol.StrUtils.IsRgb = function(str) {
   str.trim();
@@ -40,7 +40,7 @@ Interpol.StrUtils.IsRgb = function(str) {
     return false;
 
   return true;
-}
+};
 
 Interpol.StrUtils.RgbToRgba = function(str, alpha) {
   if(!this.IsRgb(str)) return undefined;
@@ -88,12 +88,12 @@ Interpol.StrUtils.RgbToRgba = function(str, alpha) {
 
   if(typeof alpha == "undefined") alpha = 1.0;
   return this.BuildRgbaStr(r, g, b, alpha);
-}
+};
 
 Interpol.StrUtils.ToRgba = function(str, alpha) {
   return this.IsRgba(str) ? str :
     this.HexToRgba(str, alpha) || this.RgbToRgba(str, alpha) || undefined;
-}
+};
 
 Interpol.StrUtils.IsRgba = function(str) {
   str.trim();
@@ -103,7 +103,7 @@ Interpol.StrUtils.IsRgba = function(str) {
     return false;
 
   return true;
-}
+};
 
 Interpol.StrUtils.RgbaToColor = function(str) {
   str = str.replace(" ", ""); /* Remove all whitespaces */
@@ -162,4 +162,4 @@ Interpol.StrUtils.RgbaToColor = function(str) {
   numStr = "";
 
   return {r:r, g:g, b:b, a:a};
-}
+};

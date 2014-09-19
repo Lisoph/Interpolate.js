@@ -1,44 +1,44 @@
 var Interpol = {};
 
 Interpol.Do = function(args) {
-    if (!args) return false;
-    if (!args.object) return false;
-    if (!args.start) return false;
-    if (!args.end) return false;
-    if (!args.method) args.method = Interpol.Methods.Lerp;
-    if (!args.animController) args.animController = Interpol.AnimController;
-    if (!args.time) args.time = 1e3;
-    if (!args.callbacks) args.callbacks = {};
-    if (!args.reverse) args.reverse = false;
+    if (typeof args == "undefined") return false;
+    if (typeof args.object == "undefined") return false;
+    if (typeof args.start == "undefined") return false;
+    if (typeof args.end == "undefined") return false;
+    if (typeof args.method == "undefined") args.method = Interpol.Methods.Lerp;
+    if (typeof args.animController == "undefined") args.animController = Interpol.AnimController;
+    if (typeof args.time == "undefined") args.time = 1e3;
+    if (typeof args.callbacks == "undefined") args.callbacks = {};
+    if (typeof args.reverse == "undefined") args.reverse = false;
     if (args.reverse) {
         var tmp = args.start;
         args.start = args.end;
         args.end = tmp;
     }
-    var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);
-    var endAttribs = Interpol.Css.GetAllCssAttribs(args.end);
-    var animController = new args.animController(args, beginAttribs, endAttribs);
+    var beginProperties = Interpol.Css.GetAllCssProperties(args.start);
+    var endProperties = Interpol.Css.GetAllCssProperties(args.end);
+    var animController = new args.animController(args, beginProperties, endProperties);
     animController.Run();
     return true;
 };
 
 Interpol.Css = {};
 
-Interpol.Css.GetCssAttrib = function(selector, attribute) {
+Interpol.Css.GetCssProperty = function(selector, property) {
     for (var i = 0; i < document.styleSheets.length; ++i) {
         var styleSheet = document.styleSheets[i];
         for (var j = 0; j < styleSheet.rules.length; ++j) {
             var rule = styleSheet.rules[j];
             if (selector.toLowerCase() === rule.selectorText.toLowerCase()) {
-                return rule.style.getPropertyValue(attribute.toLowerCase());
+                return rule.style.getPropertyValue(property.toLowerCase());
             }
         }
     }
-    return;
+    return undefined;
 };
 
-Interpol.Css.GetAllCssAttribs = function(selector) {
-    var attribs = {};
+Interpol.Css.GetAllCssProperties = function(selector) {
+    var properties = {};
     for (var i = 0; i < document.styleSheets.length; ++i) {
         var styleSheet = document.styleSheets[i];
         for (var j = 0; j < styleSheet.rules.length; ++j) {
@@ -46,34 +46,34 @@ Interpol.Css.GetAllCssAttribs = function(selector) {
             if (selector.toLowerCase() === rule.selectorText.toLowerCase()) {
                 var style = rule.style;
                 for (var a = 0; a < style.length; ++a) {
-                    var attribName = style.item(a);
-                    attribs[attribName] = style.getPropertyValue(attribName.toLowerCase());
+                    var propertyName = style.item(a);
+                    properties[propertyName] = style.getPropertyValue(propertyName.toLowerCase());
                 }
             }
         }
     }
-    return attribs;
+    return properties;
 };
 
-Interpol.Css.IsAttribUnitPercent = function(attribute) {
-    return attribute.charAt(attribute.length - 1) === "%";
+Interpol.Css.IsPropertyUnitPercent = function(property) {
+    return property.charAt(property.length - 1) === "%";
 };
 
-Interpol.Css.IsAttribUnitPixel = function(attribute) {
-    var subStr = attribute.substring(attribute.length - 2, attribute.length);
+Interpol.Css.IsPropertyUnitPixel = function(property) {
+    var subStr = property.substring(property.length - 2, property.length);
     if (subStr) {
         return subStr.toLowerCase() === "px";
     }
     return false;
 };
 
-Interpol.Css.GetAttribUnitStr = function(attribute) {
-    if (Interpol.Css.IsAttribUnitPercent(attribute)) return "%"; else if (Interpol.Css.IsAttribUnitPixel(attribute)) return "px";
+Interpol.Css.GetPropertyUnitStr = function(property) {
+    if (Interpol.Css.IsPropertyUnitPercent(property)) return "%"; else if (Interpol.Css.IsPropertyUnitPixel(property)) return "px";
     return "";
 };
 
-Interpol.Css.IsAttribNumber = function(attribute) {
-    return !isNaN(parseFloat(attribute));
+Interpol.Css.IsPropertyNumber = function(property) {
+    return !isNaN(parseFloat(property));
 };
 
 Interpol.Methods = {};
@@ -109,45 +109,45 @@ window.requestAnimationFrame = function() {
     };
 }();
 
-Interpol.AnimController = function(args, beginAttribs, endAttribs) {
+Interpol.AnimController = function(args, beginProperties, endProperties) {
     this.args = args;
-    this.beginAttribs = beginAttribs;
-    this.endAttribs = endAttribs;
+    this.beginProperties = beginProperties;
+    this.endProperties = endProperties;
     this.animId = null;
     this.startTime = null;
     this.lastFrameTimestamp = null;
     this.timeSinceStart = null;
-    this.registeredAttribControllers = [];
+    this.registeredPropertyControllers = [];
 };
 
-Interpol.AnimController.prototype.HasAttribController = function(attribName) {
-    for (var index in this.registeredAttribControllers) {
-        var registeredAttribController = this.registeredAttribControllers[index];
-        if (registeredAttribController.attribName === attribName) {
+Interpol.AnimController.prototype.HasPropertyController = function(propertyName) {
+    for (var index in this.registeredPropertyControllers) {
+        var registeredPropertyController = this.registeredPropertyControllers[index];
+        if (registeredPropertyController.propertyName === propertyName) {
             return true;
         }
     }
     return false;
 };
 
-Interpol.AnimController.prototype.GetAttribController = function(attribName) {
-    for (var index in this.registeredAttribControllers) {
-        var registeredAttribController = this.registeredAttribControllers[index];
-        if (registeredAttribController.attribName === attribName) {
-            return registeredAttribController.controller;
+Interpol.AnimController.prototype.GetPropertyController = function(propertyName) {
+    for (var index in this.registeredPropertyControllers) {
+        var registeredPropertyController = this.registeredPropertyControllers[index];
+        if (registeredPropertyController.propertyName === propertyName) {
+            return registeredPropertyController.controller;
         }
     }
     return undefined;
 };
 
-Interpol.AnimController.prototype.RegisterAttribController = function(attribName, attribController) {
-    if (this.HasAttribController(attribName)) {
-        console.log("Attribute controller for " + attribName + " already registered!");
+Interpol.AnimController.prototype.RegisterPropertyController = function(propertyName, propertyController) {
+    if (this.HasPropertyController(propertyName)) {
+        console.log("Property controller for " + propertyName + " already registered!");
         return;
     }
-    this.registeredAttribControllers.push({
-        attribName: attribName,
-        controller: attribController
+    this.registeredPropertyControllers.push({
+        propertyName: propertyName,
+        controller: propertyController
     });
 };
 
@@ -159,34 +159,36 @@ Interpol.AnimController.prototype.RequestAnimFrame = function() {
 };
 
 Interpol.AnimController.prototype.Run = function() {
-    this.RegisterAttribController("background-color", new Interpol.AttribControllers.ColorAttribController(this.args, "background-color"));
-    this.RegisterAttribController("color", new Interpol.AttribControllers.ColorAttribController(this.args, "color"));
+    this.RegisterPropertyController("background-color", new Interpol.PropertyControllers.ColorPropertyController(this.args, "background-color"));
+    this.RegisterPropertyController("color", new Interpol.PropertyControllers.ColorPropertyController(this.args, "color"));
     this.Setup();
     this.animId = this.RequestAnimFrame();
 };
 
 Interpol.AnimController.prototype.Setup = function() {
-    this.numBeginAttribs = 0;
-    for (var attribName in this.beginAttribs) {
-        if (this.HasAttribController(attribName)) {
+    var propertyName;
+    var property;
+    this.numBeginProperties = 0;
+    for (propertyName in this.beginProperties) {
+        if (this.HasPropertyController(propertyName)) {
             continue;
         }
-        var attrib = this.beginAttribs[attribName];
-        if (!Interpol.Css.IsAttribNumber(attrib)) {
-            delete this.beginAttribs[attribName];
+        property = this.beginProperties[propertyName];
+        if (!Interpol.Css.IsPropertyNumber(property)) {
+            delete this.beginProperties[propertyName];
         }
-        ++this.numBeginAttribs;
+        ++this.numBeginProperties;
     }
-    this.numEndAttribs = 0;
-    for (var attribName in this.endAttribs) {
-        if (this.HasAttribController(attribName)) {
+    this.numEndProperties = 0;
+    for (propertyName in this.endProperties) {
+        if (this.HasPropertyController(propertyName)) {
             continue;
         }
-        var attrib = this.endAttribs[attribName];
-        if (!Interpol.Css.IsAttribNumber(attrib)) {
-            delete this.endAttribs[attribName];
+        property = this.endProperties[propertyName];
+        if (!Interpol.Css.IsPropertyNumber(property)) {
+            delete this.endProperties[propertyName];
         }
-        ++this.numEndAttribs;
+        ++this.numEndProperties;
     }
 };
 
@@ -205,22 +207,22 @@ Interpol.AnimController.prototype.DoFrame = function(timestamp) {
 
 Interpol.AnimController.prototype.ApplyCss = function(t) {
     var self = this;
-    var attribs = this.numBeginAttribs > this.numEndAttribs ? this.beginAttribs : this.endAttribs;
-    var otherAttribs = this.numBeginAttribs > this.numEndAttribs ? this.endAttribs : this.beginAttribs;
-    for (var attribName in attribs) {
-        if (otherAttribs[attribName] !== undefined) {
-            if (self.HasAttribController(attribName)) {
-                var controller = self.GetAttribController(attribName);
-                controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName], t);
-            } else if (Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]) === Interpol.Css.GetAttribUnitStr(this.endAttribs[attribName])) {
-                var beginAttribVal = parseFloat(this.beginAttribs[attribName]);
-                var endAttribVal = parseFloat(this.endAttribs[attribName]);
-                var attribVal = this.args.method(beginAttribVal, endAttribVal, t);
-                this.args.object.style.setProperty(attribName, attribVal + Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]), "");
+    var properties = this.numBeginProperties > this.numEndProperties ? this.beginProperties : this.endProperties;
+    var otherProperties = this.numBeginProperties > this.numEndProperties ? this.endProperties : this.beginProperties;
+    for (var propertyName in properties) {
+        if (otherProperties[propertyName] !== undefined) {
+            if (self.HasPropertyController(propertyName)) {
+                var controller = self.GetPropertyController(propertyName);
+                controller.Do(self.beginProperties[propertyName], self.endProperties[propertyName], t);
+            } else if (Interpol.Css.GetPropertyUnitStr(this.beginProperties[propertyName]) === Interpol.Css.GetPropertyUnitStr(this.endProperties[propertyName])) {
+                var beginPropertyVal = parseFloat(this.beginProperties[propertyName]);
+                var endPropertyVal = parseFloat(this.endProperties[propertyName]);
+                var propertyVal = this.args.method(beginPropertyVal, endPropertyVal, t);
+                this.args.object.style.setProperty(propertyName, propertyVal + Interpol.Css.GetPropertyUnitStr(this.beginProperties[propertyName]), "");
             } else {
-                console.log("Error: Attribute '" + attriName + "': Neither was a attribute controller found, nor is the attribute a number with equal units!");
+                console.log("Error: Property '" + propertyName + "': Neither was a property controller found, nor is the property a number with consistent units!");
             }
-        } else console.log("Mismatching attributes!");
+        } else console.log("Mismatching properties!");
     }
 };
 
@@ -245,7 +247,7 @@ Interpol.StrUtils.BuildRgbaStr = function(r, g, b, a) {
 
 Interpol.StrUtils.IsHex = function(str) {
     str = str.trim();
-    return str.charAt(0) === "#" && (str.length - 1) % 3 == 0;
+    return str.charAt(0) === "#" && (str.length - 1) % 3 === 0;
 };
 
 Interpol.StrUtils.HexToRgba = function(str, alpha) {
@@ -353,24 +355,24 @@ Interpol.StrUtils.RgbaToColor = function(str) {
     };
 };
 
-Interpol.AttribControllers = {};
+Interpol.PropertyControllers = {};
 
-Interpol.AttribControllers.ColorAttribController = function(args, attribName) {
+Interpol.PropertyControllers.ColorPropertyController = function(args, propertyName) {
     this.args = args;
-    this.attribName = attribName;
+    this.propertyName = propertyName;
 };
 
-Interpol.AttribControllers.ColorAttribController.prototype.Do = function(beginAttrib, endAttrib, t) {
+Interpol.PropertyControllers.ColorPropertyController.prototype.Do = function(beginProperty, endProperty, t) {
     var self = this;
-    beginAttrib = Interpol.StrUtils.ToRgba(beginAttrib);
-    endAttrib = Interpol.StrUtils.ToRgba(endAttrib);
-    var beginColor = Interpol.StrUtils.RgbaToColor(beginAttrib);
-    var endColor = Interpol.StrUtils.RgbaToColor(endAttrib);
+    beginProperty = Interpol.StrUtils.ToRgba(beginProperty);
+    endProperty = Interpol.StrUtils.ToRgba(endProperty);
+    var beginColor = Interpol.StrUtils.RgbaToColor(beginProperty);
+    var endColor = Interpol.StrUtils.RgbaToColor(endProperty);
     var color = {
         r: parseInt(self.args.method(beginColor.r, endColor.r, t)),
         g: parseInt(self.args.method(beginColor.g, endColor.g, t)),
         b: parseInt(self.args.method(beginColor.b, endColor.b, t)),
         a: self.args.method(beginColor.a, endColor.a, t)
     };
-    this.args.object.style[this.attribName] = Interpol.StrUtils.BuildRgbaStr(color.r, color.g, color.b, color.a);
+    this.args.object.style[this.propertyName] = Interpol.StrUtils.BuildRgbaStr(color.r, color.g, color.b, color.a);
 };

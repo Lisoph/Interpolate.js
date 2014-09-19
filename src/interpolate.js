@@ -21,18 +21,18 @@ Interpol.Do = function(args) {
 		args.end = tmp;
 	}
 
-	/* Gather begin attributes */
-	var beginAttribs = Interpol.Css.GetAllCssAttribs(args.start);
+	/* Gather begin properties */
+	var beginProperties = Interpol.Css.GetAllCssProperties(args.start);
 
-	/* Gather end attributes */
-	var endAttribs = Interpol.Css.GetAllCssAttribs(args.end);
+	/* Gather end properties */
+	var endProperties = Interpol.Css.GetAllCssProperties(args.end);
 
 	/* Do animation */
-	var animController = new args.animController(args, beginAttribs, endAttribs);
+	var animController = new args.animController(args, beginProperties, endProperties);
 	animController.Run();
 
 	return true;
-}
+};
 
 
 

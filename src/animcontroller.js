@@ -8,10 +8,10 @@ window.requestAnimationFrame = (function() {
 })();
 
 /* AnimController class */
-Interpol.AnimController = function(args, beginAttribs, endAttribs) {
+Interpol.AnimController = function(args, beginProperties, endProperties) {
 	this.args = args;
-	this.beginAttribs = beginAttribs;
-	this.endAttribs = endAttribs;
+	this.beginProperties = beginProperties;
+	this.endProperties = endProperties;
 
 	this.animId = null;
 
@@ -19,96 +19,96 @@ Interpol.AnimController = function(args, beginAttribs, endAttribs) {
 	this.lastFrameTimestamp = null;
 	this.timeSinceStart = null;
 
-	this.registeredAttribControllers = [];
-}
+	this.registeredPropertyControllers = [];
+};
 
-Interpol.AnimController.prototype.HasAttribController = function(attribName) {
-	for(var index in this.registeredAttribControllers) {
-		var registeredAttribController = this.registeredAttribControllers[index];
+Interpol.AnimController.prototype.HasPropertyController = function(propertyName) {
+	for(var index in this.registeredPropertyControllers) {
+		var registeredPropertyController = this.registeredPropertyControllers[index];
 
-		if(registeredAttribController.attribName === attribName) {
+		if(registeredPropertyController.propertyName === propertyName) {
 			return true;
 		}
 	}
 
 	return false;
-}
+};
 
-Interpol.AnimController.prototype.GetAttribController = function(attribName) {
-	for(var index in this.registeredAttribControllers) {
-		var registeredAttribController = this.registeredAttribControllers[index];
+Interpol.AnimController.prototype.GetPropertyController = function(propertyName) {
+	for(var index in this.registeredPropertyControllers) {
+		var registeredPropertyController = this.registeredPropertyControllers[index];
 
-		if(registeredAttribController.attribName === attribName) {
-			return registeredAttribController.controller;
+		if(registeredPropertyController.propertyName === propertyName) {
+			return registeredPropertyController.controller;
 		}
 	}
 
 	return undefined;
-}
+};
 
-Interpol.AnimController.prototype.RegisterAttribController = function(attribName, attribController) {
-	if(this.HasAttribController(attribName)) {
-		console.log("Attribute controller for " + attribName + " already registered!");
+Interpol.AnimController.prototype.RegisterPropertyController = function(propertyName, propertyController) {
+	if(this.HasPropertyController(propertyName)) {
+		console.log("Property controller for " + propertyName + " already registered!");
 		return;
 	}
 
-	this.registeredAttribControllers.push({ attribName: attribName, controller: attribController });
-}
+	this.registeredPropertyControllers.push({ propertyName: propertyName, controller: propertyController });
+};
 
 Interpol.AnimController.prototype.RequestAnimFrame = function() {
 	var self = this;
 
 	return window.requestAnimationFrame(function(ts) { self.DoFrame(ts); });
-}
+};
 
 Interpol.AnimController.prototype.Run = function() {
-	/* Register default attribute controllers */
-	this.RegisterAttribController("background-color", new Interpol.AttribControllers.ColorAttribController(this.args, "background-color"));
-	this.RegisterAttribController("color", new Interpol.AttribControllers.ColorAttribController(this.args, "color"));
+	/* Register default property controllers */
+	this.RegisterPropertyController("background-color", new Interpol.PropertyControllers.ColorPropertyController(this.args, "background-color"));
+	this.RegisterPropertyController("color", new Interpol.PropertyControllers.ColorPropertyController(this.args, "color"));
 
 	this.Setup();
 	this.animId = this.RequestAnimFrame();
-}
+};
 
 Interpol.AnimController.prototype.Setup = function() {
-	/* Throw out all non-number attributes in begin- & endAttributes */
-	/* Except attributes that have a registered attribute controller */
+	/* Throw out all non-number properties in begin- & endProperties */
+	/* Except proeprties that have a registered property controller */
 
-	this.numBeginAttribs = 0;
-	for(var attribName in this.beginAttribs) {
-		/* Ignore attribute with a registered attribute controller */
-		if(this.HasAttribController(attribName)) {
+	var propertyName;
+	var property;
+
+	this.numBeginProperties = 0;
+	for(propertyName in this.beginProperties) {
+		/* Ignore property with a registered property controller */
+		if(this.HasPropertyController(propertyName)) {
 			continue;
 		}
 
-		var attrib = this.beginAttribs[attribName];
+		property = this.beginProperties[propertyName];
 
-		if(!Interpol.Css.IsAttribNumber(attrib)) {
-			delete this.beginAttribs[attribName];
+		if(!Interpol.Css.IsPropertyNumber(property)) {
+			delete this.beginProperties[propertyName];
 		}
 
-		++this.numBeginAttribs;
+		++this.numBeginProperties;
 	}
 
-	this.numEndAttribs = 0;
-	for(var attribName in this.endAttribs) {
-		/* Ignore attribute with a registered attribute controller */
-		if(this.HasAttribController(attribName)) {
+	this.numEndProperties = 0;
+	for(propertyName in this.endProperties) {
+		/* Ignore property with a registered property controller */
+		if(this.HasPropertyController(propertyName)) {
 			continue;
 		}
 
-		var attrib = this.endAttribs[attribName];
+		property = this.endProperties[propertyName];
 
-		if(!Interpol.Css.IsAttribNumber(attrib)) {
-			delete this.endAttribs[attribName];
+		if(!Interpol.Css.IsPropertyNumber(property)) {
+			delete this.endProperties[propertyName];
 		}
 
-		++this.numEndAttribs;
+		++this.numEndProperties;
 	}
-
-	/*console.log(this.beginAttribs);
-	console.log(this.endAttribs);*/
-}
+};
 
 Interpol.AnimController.prototype.DoFrame = function(timestamp) {
 	if(this.startTime === null) this.startTime = timestamp;
@@ -126,45 +126,41 @@ Interpol.AnimController.prototype.DoFrame = function(timestamp) {
 		this.args.callbacks.onProgress(t);
 
 	this.RequestAnimFrame();
-}
+};
 
 Interpol.AnimController.prototype.ApplyCss = function(t) {
 	var self = this;
 
-	/* Iterate over whatever attrib object has more attributes */
-	var attribs = (this.numBeginAttribs > this.numEndAttribs ? this.beginAttribs : this.endAttribs);
-	var otherAttribs = (this.numBeginAttribs > this.numEndAttribs ? this.endAttribs : this.beginAttribs);
+	/* Iterate over whatever property object has more properties */
+	var properties = (this.numBeginProperties > this.numEndProperties ? this.beginProperties : this.endProperties);
+	var otherProperties = (this.numBeginProperties > this.numEndProperties ? this.endProperties : this.beginProperties);
 
-	for(var attribName in attribs) {
-		// console.log("Doing attribute " + attribName);
+	for(var propertyName in properties) {
+		/* Check if otherProperties has that property too */
+		if(otherProperties[propertyName] !== undefined) {
 
-		/* Check if otherAttribs has that attribute too */
-		if(otherAttribs[attribName] !== undefined) {
-
-			/* Check if there is a registered attribute controller for this attribute */
-			if(self.HasAttribController(attribName)) {
-				var controller = self.GetAttribController(attribName);
-				controller.Do(self.beginAttribs[attribName], self.endAttribs[attribName], t);
+			/* Check if there is a registered property controller for this property */
+			if(self.HasPropertyController(propertyName)) {
+				var controller = self.GetPropertyController(propertyName);
+				controller.Do(self.beginProperties[propertyName], self.endProperties[propertyName], t);
 			}
 
-			/* Ok, so no attribute controller was found. Now we're guessing that the attribute is a number. */
+			/* Ok, so no property controller was found. Now we're guessing that the property is a number. */
 			/* Check if both values have the same unit */
-			else if(Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]) === Interpol.Css.GetAttribUnitStr(this.endAttribs[attribName])) {
-				var beginAttribVal = parseFloat(this.beginAttribs[attribName]);
-				var endAttribVal = parseFloat(this.endAttribs[attribName]);
-				var attribVal = this.args.method(beginAttribVal, endAttribVal, t);
+			else if(Interpol.Css.GetPropertyUnitStr(this.beginProperties[propertyName]) === Interpol.Css.GetPropertyUnitStr(this.endProperties[propertyName])) {
+				var beginPropertyVal = parseFloat(this.beginProperties[propertyName]);
+				var endPropertyVal = parseFloat(this.endProperties[propertyName]);
+				var propertyVal = this.args.method(beginPropertyVal, endPropertyVal, t);
 
-				this.args.object.style.setProperty(attribName, attribVal + Interpol.Css.GetAttribUnitStr(this.beginAttribs[attribName]), "");
+				this.args.object.style.setProperty(propertyName, propertyVal + Interpol.Css.GetPropertyUnitStr(this.beginProperties[propertyName]), "");
 			}
 			else {
-				// console.log("Error, begin and end attributes have different units");
-				console.log("Error: Attribute '" + attriName + "': Neither was a attribute controller found, nor is the attribute a number with equal units!");
-				// continue;
+				console.log("Error: Property '" + propertyName + "': Neither was a property controller found, nor is the property a number with consistent units!");
 			}
 		}
-		else console.log("Mismatching attributes!");
+		else console.log("Mismatching properties!");
 	}
-}
+};
 
 Interpol.AnimController.prototype.OnFinish = function() {
 	/* This guarantees a perfect end state */
@@ -172,4 +168,4 @@ Interpol.AnimController.prototype.OnFinish = function() {
 
 	if(this.args.callbacks.onFinish)
 		this.args.callbacks.onFinish();
-}
+};
