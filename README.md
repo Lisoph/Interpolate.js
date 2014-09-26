@@ -48,6 +48,10 @@ You just need to specify a function that takes 3 arguments: *x0*, *x1* and *t*.
 Take a look at src/methods.js, to see how the built in functions are constructed.
 A more in-depth API documentation will follow. Probably...
 
+## Examples
+
+See the [Interpolate.js test site](https://rawgit.com/Lisoph/Interpolate.js/master/test/test.html), it is fairly good demonstration.
+
 ## License
 
 MIT - See the LICENSE file.
