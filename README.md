@@ -5,39 +5,41 @@ A JavaScript library for interpolating between css rules.
 
 ## API
 
-    Interpol.Do({
-      
-      /* object is the target you want to interpolate. */
-      object: myDivOrSpanOrWhatever,
+``` javascript
+Interpol.Do({
+  
+  /* object is the target you want to interpolate. */
+  object: myDivOrSpanOrWhatever,
 
-      /* start is the css rule that describes your object's state at t=0 */
-      start: ".my-white-object",
+  /* start is the css rule that describes your object's state at t=0 */
+  start: ".my-white-object",
 
-      /* end is the css rule that describes your object's state at t=1 */
-      end: "#my-orange-object",
+  /* end is the css rule that describes your object's state at t=1 */
+  end: "#my-orange-object",
 
-      /* time specifies how long the interpolation/animation should take */
-      time: 1000, /* milliseconds */
+  /* time specifies how long the interpolation/animation should take */
+  time: 1000, /* milliseconds */
 
-      /*
-        method is the function you want to use for interpolation.
-        Interpolate.js supports 5 methods per se, take a look at src/methods.js
-      */
-      method: Interpol.Methods.Sin,
+  /*
+    method is the function you want to use for interpolation.
+    Interpolate.js supports 5 methods per se, take a look at src/methods.js
+  */
+  method: Interpol.Methods.Sin,
 
-      /* Do you want to reverse the animation? */
-      reverse: false,
+  /* Do you want to reverse the animation? */
+  reverse: false,
 
-      /* You can register some callbacks, if your heart desires so. */
-      callbacks: {
+  /* You can register some callbacks, if your heart desires so. */
+  callbacks: {
 
-        onFinish: function() { console.log("The animation just finished!"); },
-        onProgress: function() {
-          console.log("A newly rendered frame, fresh out of the oven.");
-        }
+    onFinish: function() { console.log("The animation just finished!"); },
+    onProgress: function() {
+      console.log("A newly rendered frame, fresh out of the oven.");
+    }
 
-      }
-    });
+  }
+});
+```
 
 Alternatively to the *Interpol.methods.**, you could also write your own.
 You just need to specify a function that takes 3 arguments: *x0*, *x1* and *t*.
