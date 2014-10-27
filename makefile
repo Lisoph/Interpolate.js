@@ -1,13 +1,13 @@
 SRC_FILES_DIR := ./src/
 SRC_FILE_NAMES := interpolate.js getcss.js methods.js animcontroller.js strutils.js color_property_controller.js
 OUTPUT := ./build/interpolate.js
-UGLIFY_OUTPUT := false
+UGLIFY_OUTPUT := true
 
 UGLIFYJS := uglifyjs
 
 SRC_FILES := $(addprefix $(SRC_FILES_DIR), $(SRC_FILE_NAMES))
 
-all: build
+all: clean build
 
 build: $(OUTPUT)
 

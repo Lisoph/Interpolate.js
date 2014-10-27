@@ -56,6 +56,8 @@
 			<input id="timeInput" type="text" value="5000" />
 			<select id="methodInput">
 				<option value="sin">Sin</option>
+				<option value="exp_notice">Notice (Experimental)</option>
+				<option value="exp_notice2">Notice2 (Experimental)</option>
 				<option value="smooth">Smooth</option>
 				<option value="square">Square</option>
 				<option value="invsquare">Inverse square</option>
@@ -86,6 +88,8 @@
 								 val === "smooth" ? Interpol.Methods.Smooth :
 								 val === "square" ? Interpol.Methods.Square :
 								 val === "invsquare" ? Interpol.Methods.InvSquare :
+								 val === "exp_notice" ? Interpol.Methods.Experimental.Notice :
+								 val === "exp_notice2" ? Interpol.Methods.Experimental.Notice2 :
 								 undefined;
 				})(),
 
